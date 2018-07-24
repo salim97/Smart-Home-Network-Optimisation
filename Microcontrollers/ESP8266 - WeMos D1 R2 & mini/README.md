@@ -1,2 +1,4 @@
 # Hardware
-wifi is build in board
+* WeMos D1 mini
+
+![picture](hardware.png)
