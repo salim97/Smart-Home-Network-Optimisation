@@ -1,2 +1,4 @@
 # Hardware
-w5100 ethernet is build in board
+* X-Board V2 DFR0162
+
+![picture](hardware.png)
