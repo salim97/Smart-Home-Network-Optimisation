@@ -1,2 +1,4 @@
 # Hardware
-wifi is build in board
+* DOIT ESP32 DEVKIT V1
+
+![picture](hardware.png)
