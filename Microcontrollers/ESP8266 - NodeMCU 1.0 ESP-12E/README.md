@@ -1,2 +1,4 @@
 # Hardware
-wifi is build in board
+* NodeMCU 1.0 ESP-13E
+
+![picture](hardware.png)
