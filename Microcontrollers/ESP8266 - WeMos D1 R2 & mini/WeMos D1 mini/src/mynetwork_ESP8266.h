@@ -9,8 +9,8 @@
 //---------------------------------------------------------
 IPAddress ipBroadCast;
 String localIP, remoteIP ;
-unsigned int udpPort = 5551 ;
-unsigned int tcpPort = 5544;  // port input data
+unsigned int m_udpPort = 5551 ;
+unsigned int m_tcpPort = 5544;  // port input data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; //buffer to hold incoming packet,
 WiFiUDP  udp; // udp broadcast client
 WiFiClient client; // tcp client
@@ -25,8 +25,10 @@ String tcpBuffer, udpBuffer ;
 
 
 
-bool mynetwork_init()
+bool mynetwork_init(int udpPort, int tcpPort)
 {
+  m_udpPort = udpPort;
+  m_tcpPort = tcpPort ;
   //start connecting to wifi....
   WiFi.begin(ssid,password);
   // wait untill esp8266 connected to wifi...
@@ -36,13 +38,13 @@ bool mynetwork_init()
     delay(500);
   }
   // debuging ...
-  // Serial.println("");
-  // Serial.print("IP Address: ");
-  // Serial.println(WiFi.localIP()); // todo: config ip broadcast
+   Serial.println("");
+   Serial.print("IP Address: ");
+   Serial.println(WiFi.localIP()); // todo: config ip broadcast
 
   ipBroadCast = WiFi.localIP() ;
   ipBroadCast[3] = 255;
-  udp.begin(udpPort); // set udp port for listen...
+  udp.begin(m_udpPort); // set udp port for listen...
   localIP +=       String(WiFi.localIP()[0]) ;
   localIP += +"."+ String(WiFi.localIP()[1]) ;
   localIP += +"."+ String(WiFi.localIP()[2]) ;
@@ -68,7 +70,7 @@ String readAllUDP()
 
     for (int i =0; i < packetSize; i++)
     packetBuffer[i]= 0;
-    // Serial.println("readAllUDP: "+udpBuffer) ;
+     Serial.println("readAllUDP: "+udpBuffer) ;
   }
 
   return udpBuffer ;
@@ -117,7 +119,7 @@ bool connectToHost(String ip)
   }
 
   client.stop();
-  return client.connect(parts, tcpPort) ;
+  return client.connect(parts, m_tcpPort) ;
 }
 String ipToString(IPAddress ip)
 {
@@ -139,7 +141,7 @@ void sendUDP(String msg)
   msg.toCharArray(tmpBuffer, UDP_PACKET_SIZE) ;
 
   // send msg broadcast to port destinie
-  udp.beginPacket(ipBroadCast, udpPort);
+  udp.beginPacket(ipBroadCast, m_udpPort);
   udp.write(tmpBuffer, sizeof(tmpBuffer));
   udp.endPacket();
   // Serial.println("sendUDP: "+msg) ;

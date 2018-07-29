@@ -7,8 +7,8 @@
 //---------------------------------------------------------
 IPAddress ipBroadCast;
 String localIP, remoteIP ;
-unsigned int udpPort = 5551 ;
-unsigned int tcpPort = 5544;  // port input data
+unsigned int m_udpPort = 5551 ;
+unsigned int m_tcpPort = 5544;  // port input data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; //buffer to hold incoming packet,
 EthernetUDP  udp; // udp broadcast client
 EthernetClient client; // tcp client
@@ -23,8 +23,10 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 
-bool mynetwork_init()
+bool mynetwork_init(int udpPort, int tcpPort)
 {
+  m_udpPort = udpPort;
+  m_tcpPort = tcpPort;
   Serial.println("START DHCP client...");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -42,7 +44,7 @@ bool mynetwork_init()
 
   ipBroadCast = Ethernet.localIP() ;
   ipBroadCast[3] = 255;
-  udp.begin(udpPort); // set udp port for listen...
+  udp.begin(m_udpPort); // set udp port for listen...
   localIP +=       String(Ethernet.localIP()[0]) ;
   localIP += +"."+ String(Ethernet.localIP()[1]) ;
   localIP += +"."+ String(Ethernet.localIP()[2]) ;
@@ -67,10 +69,10 @@ String readAllUDP()
     udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
     udpBuffer = String(packetBuffer) ;
 
-    for (int i =0; i < packetSize; i++)
+    for (int i =0; i < UDP_TX_PACKET_MAX_SIZE; i++)
     packetBuffer[i]= 0;
     if(DEBUG)
-    Serial.println("readAllUDP: "+udpBuffer) ;
+    Serial.println("readAllUDP: "+udpBuffer+ " packetSize: "+String(packetSize)) ;
   }
 
   return udpBuffer ;
@@ -119,7 +121,7 @@ bool connectToHost(String ip)
   }
 
   client.stop();
-  return client.connect(parts, tcpPort) ;
+  return client.connect(parts, m_tcpPort) ;
 }
 String ipToString(IPAddress ip)
 {
@@ -141,7 +143,7 @@ void sendUDP(String msg)
   msg.toCharArray(tmpBuffer, UDP_PACKET_SIZE) ;
 
   // send msg broadcast to port destinie
-  udp.beginPacket(ipBroadCast, udpPort);
+  udp.beginPacket(ipBroadCast, m_udpPort);
   udp.write(tmpBuffer, sizeof(tmpBuffer));
   udp.endPacket();
   if(DEBUG)

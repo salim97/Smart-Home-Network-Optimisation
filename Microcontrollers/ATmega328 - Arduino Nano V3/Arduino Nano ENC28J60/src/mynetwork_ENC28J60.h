@@ -14,8 +14,8 @@ static byte gwip[] = { 192,168,1,1 };
 
 static uint8_t ipBroadCast[IP_LEN];
 String localIP, remoteIP ;
-unsigned int udpPort = 7456 ;
-unsigned int tcpPort = 5544;  // port input data
+unsigned int m_udpPort = 7456 ;
+unsigned int m_tcpPort = 5544;  // port input data
 String tcpBuffer, udpBuffer ;
 
 //---------------------------------------------------------
@@ -28,8 +28,10 @@ static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 byte Ethernet::buffer[700];
 void readyRead(uint16_t dest_port, uint8_t src_ip[IP_LEN], uint16_t src_port, const char *data, uint16_t len);
 
-bool mynetwork_init()
+bool mynetwork_init(int udpPort, int tcpPort)
 {
+  m_udpPort = udpPort;
+  m_tcpPort = tcpPort;
   Serial.print("Connecting to ENC28J60...");
   if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0)
   {
@@ -59,7 +61,7 @@ bool mynetwork_init()
   ipBroadCast[1] = ether.myip[1] ;
   ipBroadCast[2] = ether.myip[2] ;
   ipBroadCast[3] = 255;
-  ether.udpServerListenOnPort(&readyRead, udpPort); // set udp port for listen...
+  ether.udpServerListenOnPort(&readyRead, m_udpPort); // set udp port for listen...
   localIP +=       String(ether.myip[0]) ;
   localIP += +"."+ String(ether.myip[1]) ;
   localIP += +"."+ String(ether.myip[2]) ;
@@ -104,7 +106,7 @@ void sendUDP(String msg)
   msg.toCharArray(tmpBuffer, UDP_PACKET_SIZE) ;
 
   // send msg broadcast to port destinie
-  ether.sendUdp(tmpBuffer, sizeof(tmpBuffer), udpPort, ipBroadCast, udpPort );
+  ether.sendUdp(tmpBuffer, sizeof(tmpBuffer), m_udpPort, ipBroadCast, m_udpPort );
   if(enable_debug_udp)
     Serial.println("sendUDP: "+msg) ;
 Serial.println("sendUDP: "+String(msg.length())) ;
@@ -171,7 +173,7 @@ parts[part] += c - '0';
 }
 
 client.stop();
-return client.connect(parts, tcpPort) ;
+return client.connect(parts, m_tcpPort) ;
 }
 */
 // String ipToString(IPAddress ip)
